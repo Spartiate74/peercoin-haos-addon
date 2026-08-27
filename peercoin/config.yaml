@@ -1,0 +1,32 @@
+name: Peercoin Core
+version: "0.15.1"
+slug: peercoin
+description: Peercoin Core ARM64 pour Home Assistant
+arch:
+  - aarch64
+
+startup: services
+boot: auto
+init: false
+
+map:
+  - type: share
+    read_only: false
+
+ports:
+  9901/tcp: 9901
+  9902/tcp: 9902
+
+ports_description:
+  9901/tcp: Port réseau Peercoin
+  9902/tcp: Port RPC Peercoin
+
+options:
+  rpcuser: ppc_rpc
+  rpcpassword: ""
+  minting: false
+
+schema:
+  rpcuser: str
+  rpcpassword: password
+  minting: bool
