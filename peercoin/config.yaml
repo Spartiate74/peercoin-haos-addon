@@ -1,5 +1,5 @@
 name: Peercoin Core
-version: "0.15.1"
+version: "0.15.2"
 slug: peercoin
 description: Peercoin Core ARM64 pour Home Assistant
 arch:
