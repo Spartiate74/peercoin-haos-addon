@@ -37,11 +37,11 @@ RUN mkdir -p /tmp/peercoin && \
     install -m 0755 "${PEERCOINCLI}" /usr/local/bin/peercoin-cli && \
     rm -rf /tmp/peercoin /tmp/peercoin.tar.gz
 
-COPY run.sh /run.sh
+COPY run.sh /opt/peercoin/run.sh
 COPY enable-minting.sh /opt/peercoin/enable-minting.sh
 
-RUN chmod 755 /run.sh \
-    /opt/peercoin/enable-minting.sh
+RUN chmod 700 /opt/peercoin/run.sh \
+    && chmod 700 /opt/peercoin/enable-minting.sh
 
 VOLUME ["/data"]
 
