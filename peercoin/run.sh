@@ -1,40 +1,63 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/sh
+set -eu
 
-DATA_DIR="/data/peercoin"
-CONFIG_FILE="${DATA_DIR}/peercoin.conf"
+DATA_DIR="/share/peercoin/data"
+CONF_FILE="/share/peercoin/peercoin.conf"
+MINTING_SCRIPT="/opt/peercoin/enable-minting.sh"
 
-mkdir -p "${DATA_DIR}"
-chown -R peercoin:peercoin /data
+mkdir -p "$DATA_DIR"
+mkdir -p "/share/peercoin/logs"
 
-if [ ! -f "${CONFIG_FILE}" ]; then
-    RPC_USER="$(jq -r '.rpcuser // "ppc_rpc"' /data/options.json)"
-    RPC_PASSWORD="$(jq -r '.rpcpassword // empty' /data/options.json)"
-    MINTING="$(jq -r '.minting // false' /data/options.json)"
+# Vérifications de configuration
+: "${RPC_USER:=ppc_rpc}"
+: "${RPC_PASS:?RPC_PASS n'est pas défini}"
 
-    if [ -z "${RPC_PASSWORD}" ]; then
-        echo "Erreur : le mot de passe RPC n'est pas configuré."
+export RPC_USER
+export RPC_PASS
+
+# Le fichier doit être fourni par le mapping Home Assistant
+export WALLET_PASS_FILE="${WALLET_PASS_FILE:-/config/peercoin/secrets/ppc_wallet_pass}"
+
+if [ ! -r "$WALLET_PASS_FILE" ]; then
+    echo "ERREUR : fichier du mot de passe du wallet introuvable : $WALLET_PASS_FILE"
+    exit 1
+fi
+
+# Important :
+# peercoind doit rester au premier plan dans le conteneur.
+# L'option -daemon=0 est utilisée par les versions compatibles Bitcoin Core.
+peercoind \
+    -datadir="$DATA_DIR" \
+    -conf="$CONF_FILE" \
+    -daemon=0 &
+PEERCOIN_PID=$!
+
+cleanup() {
+    echo "Arrêt de Peercoin..."
+    kill "$PEERCOIN_PID" 2>/dev/null || true
+    kill "$MINTING_PID" 2>/dev/null || true
+}
+
+trap cleanup INT TERM EXIT
+
+# Le script attend lui-même que le RPC soit disponible,
+# que le wallet soit chargé et que la blockchain soit synchronisée.
+/bin/sh "$MINTING_SCRIPT" &
+MINTING_PID=$!
+
+# Surveille les deux processus.
+while :; do
+    if ! kill -0 "$PEERCOIN_PID" 2>/dev/null; then
+        echo "ERREUR : peercoind s'est arrêté"
+        wait "$PEERCOIN_PID" 2>/dev/null || true
         exit 1
     fi
 
-    {
-        echo "server=1"
-        echo "daemon=0"
-        echo "listen=1"
-        echo "rpcuser=${RPC_USER}"
-        echo "rpcpassword=${RPC_PASSWORD}"
-        echo "rpcport=9902"
-        echo "port=9901"
-        echo "rpcbind=0.0.0.0"
-        echo "rpcallowip=172.16.0.0/12"
-        echo "rpcallowip=192.168.184.0/24"
-        echo "minting=$([ "${MINTING}" = "true" ] && echo 1 || echo 0)"
-    } > "${CONFIG_FILE}"
+    if ! kill -0 "$MINTING_PID" 2>/dev/null; then
+        echo "ERREUR : le script de minting s'est arrêté"
+        wait "$MINTING_PID" 2>/dev/null || true
+        exit 1
+    fi
 
-    chown peercoin:peercoin "${CONFIG_FILE}"
-    chmod 600 "${CONFIG_FILE}"
-fi
-
-exec gosu peercoin peercoind \
-    -datadir="${DATA_DIR}" \
-    -conf="${CONFIG_FILE}"
+    sleep 5
+done
