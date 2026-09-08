@@ -48,4 +48,3 @@ VOLUME ["/data"]
 EXPOSE 9901 9902
 
 CMD ["/run.sh"]
-CMD ["/run.sh"]
