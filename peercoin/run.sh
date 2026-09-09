@@ -1,14 +1,15 @@
 #!/bin/sh
 set -eu
 
-DATA_DIR="/share/peercoin/data"
-CONF_FILE="/share/peercoin/peercoin.conf"
+DATA_DIR="/data/peercoin"
+CONF_FILE="${DATA_DIR}/peercoin.conf"
 MINTING_SCRIPT="/opt/peercoin/enable-minting.sh"
 OPTIONS_FILE="/data/options.json"
 
 mkdir -p "$DATA_DIR"
 mkdir -p "/share/peercoin/logs"
 mkdir -p "/config/peercoin/secrets"
+chown -R peercoin:peercoin /data
 
 if [ ! -r "$OPTIONS_FILE" ]; then
     echo "ERREUR : fichier $OPTIONS_FILE introuvable"
@@ -48,6 +49,7 @@ rpcallowip=192.168.184.0/24
 maxconnections=32
 EOF
 
+chown peercoin:peercoin "${CONF_FILE}"
 chmod 600 "$CONF_FILE"
 
 
