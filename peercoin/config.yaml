@@ -20,7 +20,7 @@ ports:
 
 ports_description:
   9901/tcp: Peercoin P2P
-  9902/tcp: RPC Peercoin
+  9902/tcp: Peercoin RPC local
 
 options:
   rpcuser: ppc_rpc
