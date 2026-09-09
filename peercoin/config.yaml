@@ -10,10 +10,6 @@ boot: auto
 init: false
 
 map:
-  - type: addon_config
-    read_only: false
-    path: /config
-
   - type: share
     read_only: false
     path: /share
