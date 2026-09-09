@@ -5,7 +5,7 @@ RPC_USER="${RPC_USER:-ppc_rpc}"
 RPC_PASS="${RPC_PASS:?RPC_PASS n'est pas défini}"
 RPC_URL="${RPC_URL:-http://127.0.0.1:9902}"
 WALLET_NAME="${WALLET_NAME:-android-legacy}"
-WALLET_PASS_FILE="${WALLET_PASS_FILE:-/config/peercoin/secrets/ppc_wallet_pass}"
+WALLET_PASS_FILE="${WALLET_PASS_FILE:-/share/peercoin/secrets/ppc_wallet_pass}"
 LOG_FILE="${LOG_FILE:-/share/peercoin/logs/minting.log}"
 
 WALLET_URL="$RPC_URL/wallet/$WALLET_NAME"
