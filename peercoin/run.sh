@@ -29,7 +29,7 @@ export RPC_USER
 export RPC_PASS
 
 export WALLET_NAME="android-legacy"
-export WALLET_PASS_FILE="/config/peercoin/secrets/ppc_wallet_pass"
+export WALLET_PASS_FILE="${WALLET_PASS_FILE:-/config/peercoin/secrets/ppc_wallet_pass}"
 export LOG_FILE="/share/peercoin/logs/minting.log"
 
 #Creation peercoin.conf
