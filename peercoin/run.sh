@@ -1,8 +1,8 @@
 #!/bin/sh
 set -eu
 
-DATA_DIR="/data/peercoin"
-CONF_FILE="${DATA_DIR}/peercoin.conf"
+DATA_DIR="/share/peercoin/data"
+CONF_FILE="/share/peercoin/peercoin.conf"
 MINTING_SCRIPT="/opt/peercoin/enable-minting.sh"
 OPTIONS_FILE="/data/options.json"
 
