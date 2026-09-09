@@ -13,14 +13,13 @@ map:
   - type: share
     read_only: false
   - config: rw
-  - share: rw
   
 ports:
   9901/tcp: 9901
   9902/tcp: 9902
 
 ports_description:
-  9901/tcp: Port réseau Peercoin
+  9901/tcp: Peercoin P2P
   9902/tcp: RPC Peercoin
 
 options:
