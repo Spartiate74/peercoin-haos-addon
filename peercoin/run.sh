@@ -8,7 +8,7 @@ OPTIONS_FILE="/data/options.json"
 
 mkdir -p "$DATA_DIR"
 mkdir -p "/share/peercoin/logs"
-mkdir -p "/config/peercoin/secrets"
+mkdir -p "/share/peercoin/secrets"
 chown -R peercoin:peercoin /data
 
 if [ ! -r "$OPTIONS_FILE" ]; then
@@ -29,7 +29,7 @@ export RPC_USER
 export RPC_PASS
 
 export WALLET_NAME="android-legacy"
-export WALLET_PASS_FILE="${WALLET_PASS_FILE:-/config/peercoin/secrets/ppc_wallet_pass}"
+export WALLET_PASS_FILE="/share/peercoin/secrets/ppc_wallet_pass"
 export LOG_FILE="/share/peercoin/logs/minting.log"
 
 #Creation peercoin.conf
@@ -52,20 +52,15 @@ EOF
 chown peercoin:peercoin "${CONF_FILE}"
 chmod 600 "$CONF_FILE"
 
-if [ ! -r "$WALLET_PASS_FILE" ]; then
-    echo "ERREUR : fichier du mot de passe du wallet introuvable : $WALLET_PASS_FILE"
+mkdir -p /share/peercoin/secrets
 
-    echo "Diagnostic des montages :"
-
-    ls -ld /config 2>/dev/null || true
-    ls -ld /config/peercoin 2>/dev/null || true
-    ls -ld /config/peercoin/secrets 2>/dev/null || true
-    ls -l /config/peercoin/secrets 2>/dev/null || true
-
+if [ ! -s "$WALLET_PASS_FILE" ]; then
+    echo "ERREUR : fichier du mot de passe du wallet introuvable ou vide : $WALLET_PASS_FILE"
+    ls -la /share/peercoin/secrets 2>/dev/null || true
     exit 1
 fi
 
-
+chmod 600 "$WALLET_PASS_FILE"
 
 # Important :
 # peercoind doit rester au premier plan dans le conteneur.
