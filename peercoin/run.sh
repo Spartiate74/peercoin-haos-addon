@@ -52,11 +52,20 @@ EOF
 chown peercoin:peercoin "${CONF_FILE}"
 chmod 600 "$CONF_FILE"
 
-
 if [ ! -r "$WALLET_PASS_FILE" ]; then
     echo "ERREUR : fichier du mot de passe du wallet introuvable : $WALLET_PASS_FILE"
+
+    echo "Diagnostic des montages :"
+
+    ls -ld /config 2>/dev/null || true
+    ls -ld /config/peercoin 2>/dev/null || true
+    ls -ld /config/peercoin/secrets 2>/dev/null || true
+    ls -l /config/peercoin/secrets 2>/dev/null || true
+
     exit 1
 fi
+
+
 
 # Important :
 # peercoind doit rester au premier plan dans le conteneur.
