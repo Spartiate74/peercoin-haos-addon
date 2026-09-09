@@ -13,6 +13,23 @@ chown -R peercoin:peercoin /data
 : "${RPC_USER:=ppc_rpc}"
 : "${RPC_PASS:?RPC_PASS n'est pas défini}"
 
+{
+        echo "server=1"
+        echo "daemon=0"
+        echo "listen=1"
+        echo "rpcuser=${RPC_USER}"
+        echo "rpcpassword=${RPC_PASSWORD}"
+        echo "rpcport=9902"
+        echo "port=9901"
+        echo "rpcbind=0.0.0.0"
+        echo "rpcallowip=172.16.0.0/12"
+        echo "rpcallowip=192.168.0.0/16"
+        echo "minting=$([ "${MINTING}" = "true" ] && echo 1 || echo 0)"
+    } > "${CONF_FILE}"
+
+    chown peercoin:peercoin "${CONF_FILE}"
+    chmod 600 "${CONF_FILE}"
+    
 export RPC_USER
 export RPC_PASS
 
