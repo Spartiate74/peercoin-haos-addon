@@ -11,8 +11,8 @@ init: false
 
 map:
   - type: homeassistant_config
-    read_only: false
-    path: /config
+  read_only: false
+  path: /config
 
   - type: share
     read_only: false
