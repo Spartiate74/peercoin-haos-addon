@@ -10,8 +10,8 @@ mkdir -p "/share/peercoin/logs"
 mkdir -p "/share/peercoin/secrets"
 chown -R peercoin:peercoin /data
 
-: "${RPC_USER:=ppc_rpc}"
-: "${RPC_PASS:?RPC_PASS n'est pas défini}"
+RPC_USER="${RPC_USER:-ppc_rpc}"
+RPC_PASS="${RPC_PASS:?RPC_PASS n'est pas défini}"
 
 {
         echo "server=1"
