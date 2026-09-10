@@ -18,7 +18,7 @@ chown -R peercoin:peercoin /data
         echo "daemon=0"
         echo "listen=1"
         echo "rpcuser=${RPC_USER}"
-        echo "rpcpassword=${RPC_PASSWORD}"
+        echo "rpcpassword=${RPC_PASS}"
         echo "rpcport=9902"
         echo "port=9901"
         echo "rpcbind=0.0.0.0"
