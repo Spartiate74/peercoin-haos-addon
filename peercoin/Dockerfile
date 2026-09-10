@@ -27,8 +27,11 @@ RUN curl -fL \
     rm /tmp/peercoin.tar.gz && \
     chmod 755 /opt/peercoin/peercoind /opt/peercoin/peercoin-cli
 
-COPY run.sh /run.sh
-RUN chmod 755 /run.sh
+COPY run.sh /opt/peercoin/run.sh
+COPY enable-minting.sh /opt/peercoin/enable-minting.sh
+
+RUN chmod 700 /opt/peercoin/run.sh \
+    && chmod 700 /opt/peercoin/enable-minting.sh
 
 VOLUME ["/data"]
 
