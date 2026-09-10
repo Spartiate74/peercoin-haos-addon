@@ -23,20 +23,25 @@ WORKDIR /opt/peercoin
 RUN curl -fL \
       "https://github.com/peercoin/peercoin/releases/download/v${PPC_VERSION}/${PPC_ARCHIVE}" \
       -o /tmp/peercoin.tar.gz && \
-    tar -xzf /tmp/peercoin.tar.gz --strip-components=1 -C /opt/peercoin && \
-    rm /tmp/peercoin.tar.gz && \
-    chmod 755 /opt/peercoin/peercoind /opt/peercoin/peercoin-cli
+    tar -xzf /tmp/peercoin.tar.gz \
+      --strip-components=1 \
+      -C /opt/peercoin && \
+    rm -f /tmp/peercoin.tar.gz && \
+    chmod 755 \
+      /opt/peercoin/peercoind \
+      /opt/peercoin/peercoin-cli
 
 COPY run.sh /opt/peercoin/run.sh
 COPY enable-minting.sh /opt/peercoin/enable-minting.sh
 
 RUN chmod 700 /opt/peercoin/run.sh \
-    && chmod 700 /opt/peercoin/enable-minting.sh
+    && chmod 700 /opt/peercoin/enable-minting.sh \
+    && mkdir -p /share/peercoin \
+    && chown -R peercoin:peercoin /share/peercoin
 
-VOLUME ["/data"]
+# Le stockage effectif est fourni par le mapping de l'add-on.
+VOLUME ["/share/peercoin"]
 
 EXPOSE 9901 9902
-
-CMD ["/opt/peercoin/run.sh"]
 
 ENTRYPOINT ["/opt/peercoin/run.sh"]
