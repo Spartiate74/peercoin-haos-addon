@@ -39,3 +39,4 @@ EXPOSE 9901 9902
 
 CMD ["/opt/peercoin/run.sh"]
 
+ENTRYPOINT ["/opt/peercoin/run.sh"]
