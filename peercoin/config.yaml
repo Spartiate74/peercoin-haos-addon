@@ -2,26 +2,27 @@ name: Peercoin Core
 version: "0.15.2"
 slug: peercoin
 description: Peercoin Core avec portefeuille et minting
+
 arch:
   - aarch64
 
 startup: services
 boot: auto
 init: false
-image: ghcr.io/VOTRE_COMPTE/peercoin-addon
 
 map:
   - type: share
     read_only: false
+  - config: rw
 
 ports:
   9901/tcp: 9901
   9902/tcp: 9902
 
 ports_description:
-  9901/tcp: Port réseau Peercoin
-  9902/tcp: RPC Peercoin
-
+  9901/tcp: Peercoin P2P
+  9902/tcp: Peercoin RPC local
+  
 options:
   rpcuser: ppc_rpc
   rpcpassword: ""
