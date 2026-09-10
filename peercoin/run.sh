@@ -8,8 +8,20 @@ MINTING_SCRIPT="/opt/peercoin/enable-minting.sh"
 mkdir -p "$DATA_DIR"
 mkdir -p "/share/peercoin/logs"
 
-: "${RPC_USER:=ppc_rpc}"
-: "${RPC_PASS:?RPC_PASS n'est pas défini}"
+RPC_USER="${RPC_USER:-ppc_rpc}"
+RPC_PASS_FILE="${RPC_PASS_FILE:-/config/peercoin/secrets/rpc_pass}"
+
+if [ ! -r "$RPC_PASS_FILE" ]; then
+    echo "ERREUR : fichier du mot de passe RPC introuvable : $RPC_PASS_FILE"
+    exit 1
+fi
+
+RPC_PASS="$(cat "$RPC_PASS_FILE")"
+
+if [ -z "$RPC_PASS" ]; then
+    echo "ERREUR : le mot de passe RPC est vide"
+    exit 1
+fi
 
 export RPC_USER
 export RPC_PASS
