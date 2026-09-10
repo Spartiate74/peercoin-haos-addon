@@ -34,13 +34,8 @@ RUN curl -fL \
 COPY run.sh /opt/peercoin/run.sh
 COPY enable-minting.sh /opt/peercoin/enable-minting.sh
 
-RUN chmod 700 /opt/peercoin/run.sh \
-    && chmod 700 /opt/peercoin/enable-minting.sh \
-    && mkdir -p /share/peercoin \
-    && chown -R peercoin:peercoin /share/peercoin
-
-# Le stockage effectif est fourni par le mapping de l'add-on.
-VOLUME ["/share/peercoin"]
+RUN chmod 700 /opt/peercoin/run.sh && \
+    chmod 700 /opt/peercoin/enable-minting.sh
 
 EXPOSE 9901 9902
 
