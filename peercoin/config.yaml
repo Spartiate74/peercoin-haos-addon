@@ -11,9 +11,13 @@ boot: auto
 init: false
 
 map:
+  - type: homeassistant_config
+    read_only: false
+    path: /config
+
   - type: share
     read_only: false
-  - config: rw
+    path: /share
 
 ports:
   9901/tcp: 9901
