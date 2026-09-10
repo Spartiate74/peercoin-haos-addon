@@ -27,7 +27,7 @@ if [ ! -f "${CONFIG_FILE}" ]; then
         echo "port=9901"
         echo "rpcbind=0.0.0.0"
         echo "rpcallowip=172.16.0.0/12"
-        echo "rpcallowip=192.168.0.0/16"
+        echo "rpcallowip=192.168.184.0/16"
         echo "minting=$([ "${MINTING}" = "true" ] && echo 1 || echo 0)"
     } > "${CONFIG_FILE}"
 
