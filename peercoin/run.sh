@@ -4,83 +4,87 @@ set -eu
 DATA_DIR="/share/peercoin/data"
 CONF_FILE="/share/peercoin/peercoin.conf"
 MINTING_SCRIPT="/opt/peercoin/enable-minting.sh"
-OPTIONS_FILE="/data/options.json"
 
 mkdir -p "$DATA_DIR"
 mkdir -p "/share/peercoin/logs"
-mkdir -p "/config/peercoin/secrets"
 
-if [ ! -r "$OPTIONS_FILE" ]; then
-    echo "ERREUR : fichier $OPTIONS_FILE introuvable"
-    exit 1
-fi
-
-RPC_USER="$(jq -r '.rpcuser // "ppc_rpc"' "$OPTIONS_FILE")"
-RPC_PASS="$(jq -r '.rpcpassword // empty' "$OPTIONS_FILE")"
-MINTING="$(jq -r '.minting // false' "$OPTIONS_FILE")"
-
-if [ -z "$RPC_PASS" ]; then
-    echo "ERREUR : rpcpassword est vide"
-    exit 1
-fi
+: "${RPC_USER:=ppc_rpc}"
+: "${RPC_PASS:?RPC_PASS n'est pas défini}"
 
 export RPC_USER
 export RPC_PASS
 
-export WALLET_NAME="android-legacy"
-export WALLET_PASS_FILE="/config/peercoin/secrets/ppc_wallet_pass"
-export LOG_FILE="/share/peercoin/logs/minting.log"
+export WALLET_NAME="${WALLET_NAME:-android-legacy}"
+export WALLET_PASS_FILE="${WALLET_PASS_FILE:-/config/peercoin/secrets/ppc_wallet_pass}"
 
-cat > "$CONF_FILE" <<EOF
+if [ ! -r "$WALLET_PASS_FILE" ]; then
+    echo "ERREUR : fichier du mot de passe introuvable : $WALLET_PASS_FILE"
+    exit 1
+fi
+
+if [ ! -f "$CONF_FILE" ]; then
+    echo "Création de $CONF_FILE"
+
+    umask 077
+
+    cat > "$CONF_FILE" <<EOF
 server=1
 daemon=0
+staking=1
+
+rpcuser=$RPC_USER
+rpcpassword=$RPC_PASS
+rpcport=9902
+rpcbind=127.0.0.1
+rpcallowip=127.0.0.1
 
 listen=1
 port=9901
-
-rpcuser=${RPC_USER}
-rpcpassword=${RPC_PASS}
-
-rpcbind=0.0.0.0:9902
-rpcallowip=192.168.184.0/24
-
-maxconnections=32
 EOF
 
-chmod 600 "$CONF_FILE"
-
-MINTING_PID=""
-
-if [ "$MINTING" = "true" ]; then
-    echo "Minting activé"
-    /bin/sh "$MINTING_SCRIPT" &
-    MINTING_PID=$!
+    chmod 600 "$CONF_FILE"
 else
-    echo "Minting désactivé"
-    MINTING_PID=""
+    echo "$CONF_FILE existe déjà"
+    chmod 600 "$CONF_FILE"
 fi
 
+echo "Démarrage de peercoind"
+
+peercoind \
+    -datadir="$DATA_DIR" \
+    -conf="$CONF_FILE" \
+    -daemon=0 &
+
+PEERCOIN_PID=$!
+
 cleanup() {
-    echo "Arrêt de Peercoin..."
+    echo "Arrêt de Peercoin"
 
-    kill "$PEERCOIN_PID" 2>/dev/null || true
+    if kill -0 "$PEERCOIN_PID" 2>/dev/null; then
+        kill "$PEERCOIN_PID" 2>/dev/null || true
+    fi
 
-    if [ -n "${MINTING_PID:-}" ]; then
+    if [ -n "${MINTING_PID:-}" ] &&
+       kill -0 "$MINTING_PID" 2>/dev/null; then
         kill "$MINTING_PID" 2>/dev/null || true
     fi
 }
 
+trap cleanup INT TERM EXIT
+
+echo "Démarrage de la logique de minting"
+
+/bin/sh "$MINTING_SCRIPT" &
+MINTING_PID=$!
+
 while :; do
     if ! kill -0 "$PEERCOIN_PID" 2>/dev/null; then
         echo "ERREUR : peercoind s'est arrêté"
-        wait "$PEERCOIN_PID" 2>/dev/null || true
         exit 1
     fi
 
-    if [ -n "${MINTING_PID:-}" ] &&
-       ! kill -0 "$MINTING_PID" 2>/dev/null; then
-        echo "ERREUR : le script de minting s'est arrêté"
-        wait "$MINTING_PID" 2>/dev/null || true
+    if ! kill -0 "$MINTING_PID" 2>/dev/null; then
+        echo "ERREUR : enable-minting.sh s'est arrêté"
         exit 1
     fi
 
