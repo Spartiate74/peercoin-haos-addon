@@ -1,40 +1,88 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/sh
+set -eu
 
-DATA_DIR="/data/peercoin"
-CONFIG_FILE="${DATA_DIR}/peercoin.conf"
+DATA_DIR="/share/peercoin/data"
+CONF_FILE="/share/peercoin/peercoin.conf"
+MINTING_SCRIPT="/opt/peercoin/enable-minting.sh"
+OPTIONS_FILE="/data/options.json"
 
-mkdir -p "${DATA_DIR}"
-chown -R peercoin:peercoin /data
+mkdir -p "$DATA_DIR"
+mkdir -p "/share/peercoin/logs"
+mkdir -p "/config/peercoin/secrets"
 
-if [ ! -f "${CONFIG_FILE}" ]; then
-    RPC_USER="$(jq -r '.rpcuser // "ppc_rpc"' /data/options.json)"
-    RPC_PASSWORD="$(jq -r '.rpcpassword // empty' /data/options.json)"
-    MINTING="$(jq -r '.minting // false' /data/options.json)"
+if [ ! -r "$OPTIONS_FILE" ]; then
+    echo "ERREUR : fichier $OPTIONS_FILE introuvable"
+    exit 1
+fi
 
-    if [ -z "${RPC_PASSWORD}" ]; then
-        echo "Erreur : le mot de passe RPC n'est pas configuré."
+RPC_USER="$(jq -r '.rpcuser // "ppc_rpc"' "$OPTIONS_FILE")"
+RPC_PASS="$(jq -r '.rpcpassword // empty' "$OPTIONS_FILE")"
+MINTING="$(jq -r '.minting // false' "$OPTIONS_FILE")"
+
+if [ -z "$RPC_PASS" ]; then
+    echo "ERREUR : rpcpassword est vide"
+    exit 1
+fi
+
+export RPC_USER
+export RPC_PASS
+
+export WALLET_NAME="android-legacy"
+export WALLET_PASS_FILE="/config/peercoin/secrets/ppc_wallet_pass"
+export LOG_FILE="/share/peercoin/logs/minting.log"
+
+cat > "$CONF_FILE" <<EOF
+server=1
+daemon=0
+
+listen=1
+port=9901
+
+rpcuser=${RPC_USER}
+rpcpassword=${RPC_PASS}
+
+rpcbind=0.0.0.0:9902
+rpcallowip=192.168.184.0/24
+
+maxconnections=32
+EOF
+
+chmod 600 "$CONF_FILE"
+
+MINTING_PID=""
+
+if [ "$MINTING" = "true" ]; then
+    echo "Minting activé"
+    /bin/sh "$MINTING_SCRIPT" &
+    MINTING_PID=$!
+else
+    echo "Minting désactivé"
+    MINTING_PID=""
+fi
+
+cleanup() {
+    echo "Arrêt de Peercoin..."
+
+    kill "$PEERCOIN_PID" 2>/dev/null || true
+
+    if [ -n "${MINTING_PID:-}" ]; then
+        kill "$MINTING_PID" 2>/dev/null || true
+    fi
+}
+
+while :; do
+    if ! kill -0 "$PEERCOIN_PID" 2>/dev/null; then
+        echo "ERREUR : peercoind s'est arrêté"
+        wait "$PEERCOIN_PID" 2>/dev/null || true
         exit 1
     fi
 
-    {
-        echo "server=1"
-        echo "daemon=0"
-        echo "listen=1"
-        echo "rpcuser=${RPC_USER}"
-        echo "rpcpassword=${RPC_PASSWORD}"
-        echo "rpcport=9902"
-        echo "port=9901"
-        echo "rpcbind=0.0.0.0"
-        echo "rpcallowip=172.16.0.0/12"
-        echo "rpcallowip=192.168.184.0/16"
-        echo "minting=$([ "${MINTING}" = "true" ] && echo 1 || echo 0)"
-    } > "${CONFIG_FILE}"
+    if [ -n "${MINTING_PID:-}" ] &&
+       ! kill -0 "$MINTING_PID" 2>/dev/null; then
+        echo "ERREUR : le script de minting s'est arrêté"
+        wait "$MINTING_PID" 2>/dev/null || true
+        exit 1
+    fi
 
-    chown peercoin:peercoin "${CONFIG_FILE}"
-    chmod 600 "${CONFIG_FILE}"
-fi
-
-exec gosu peercoin /opt/peercoin/peercoind \
-    -datadir="${DATA_DIR}" \
-    -conf="${CONFIG_FILE}"
+    sleep 5
+done
