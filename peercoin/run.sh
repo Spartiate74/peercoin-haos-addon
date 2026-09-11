@@ -62,7 +62,7 @@ fi
 
 echo "Démarrage de peercoind"
 
-peercoind \
+/usr/local/bin/peercoind \
     -datadir="$DATA_DIR" \
     -conf="$CONF_FILE" \
     -daemon=0 &
