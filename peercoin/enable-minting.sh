@@ -33,18 +33,21 @@ if [ ! -r "$WALLET_PASS_FILE" ]; then
     exit 1
 fi
 
-log "Attente de la disponibilité du RPC Peercoin"
+log "Attente de la disponibilité complète du RPC Peercoin"
 
 while :; do
     PAYLOAD='{"jsonrpc":"1.0","id":"rpc","method":"getblockchaininfo","params":[]}'
+
     RESPONSE="$(rpc "$PAYLOAD" "$RPC_URL" 2>/dev/null || true)"
 
     if printf '%s' "$RESPONSE" |
-        jq -e '.result != null' >/dev/null 2>&1; then
+        jq -e '.result != null and .error == null' >/dev/null 2>&1; then
+        log "RPC Peercoin disponible"
         break
     fi
 
-    sleep 10
+    log "RPC encore en initialisation"
+    sleep 15
 done
 
 log "RPC disponible"
@@ -86,23 +89,43 @@ done
 
 log "Wallet $WALLET_NAME disponible"
 
-# Attend la synchronisation complète de la blockchain.
+log "Attente de la synchronisation complète de la blockchain"
+
 while :; do
     PAYLOAD='{"jsonrpc":"1.0","id":"chain","method":"getblockchaininfo","params":[]}'
-    INFO="$(rpc "$PAYLOAD" "$RPC_URL")"
+
+    INFO="$(rpc "$PAYLOAD" "$RPC_URL" 2>/dev/null || true)"
+
+    if [ -z "$INFO" ]; then
+        log "RPC temporairement indisponible pendant le chargement de la blockchain"
+        sleep 15
+        continue
+    fi
+
+    RPC_ERROR="$(printf '%s' "$INFO" | jq -r '.error.message // empty' 2>/dev/null || true)"
+
+    if [ -n "$RPC_ERROR" ]; then
+        log "Blockchain encore en initialisation : $RPC_ERROR"
+        sleep 15
+        continue
+    fi
 
     IBD="$(printf '%s' "$INFO" |
-        jq -r '.result.initialblockdownload // true')"
+        jq -r '.result.initialblockdownload // true' 2>/dev/null || echo true)"
 
     if [ "$IBD" = "false" ]; then
         break
     fi
 
-    log "Blockchain encore en synchronisation"
+    PROGRESS="$(printf '%s' "$INFO" |
+        jq -r '.result.verificationprogress // 0' 2>/dev/null || echo 0)"
+
+    log "Blockchain encore en synchronisation : progression $PROGRESS"
     sleep 60
 done
 
 log "Blockchain synchronisée"
+
 
 # Déverrouille le portefeuille en mode minting-only.
 WALLET_PASS="$(cat "$WALLET_PASS_FILE")"
