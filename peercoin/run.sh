@@ -42,13 +42,13 @@ if [ ! -f "$CONF_FILE" ]; then
     cat > "$CONF_FILE" <<EOF
 server=1
 daemon=0
-staking=1
+minting=1
 
 rpcuser=$RPC_USER
 rpcpassword=$RPC_PASS
 rpcport=9902
-rpcbind=127.0.0.1
-rpcallowip=127.0.0.1
+rpcbind=0.0.0.0
+rpcallowip=192.168.184.0/24
 
 listen=1
 port=9901
