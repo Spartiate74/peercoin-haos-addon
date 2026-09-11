@@ -8,6 +8,22 @@ MINTING_SCRIPT="/opt/peercoin/enable-minting.sh"
 mkdir -p "$DATA_DIR"
 mkdir -p "/share/peercoin/logs"
 
+echo "Recherche des fichiers de portefeuille dans $DATA_DIR :"
+
+find "$DATA_DIR" \
+    -maxdepth 5 \
+    -type f \
+    \( -name "wallet.dat" -o -name "*.dat" \) \
+    -print 2>/dev/null || true
+
+echo "Répertoires de portefeuille :"
+
+find "$DATA_DIR" \
+    -maxdepth 5 \
+    -type d \
+    -print 2>/dev/null || true
+
+
 RPC_USER="${RPC_USER:-ppc_rpc}"
 RPC_PASS_FILE="${RPC_PASS_FILE:-/config/peercoin/secrets/rpc_pass}"
 
