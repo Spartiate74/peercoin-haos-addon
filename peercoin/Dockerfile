@@ -20,7 +20,7 @@ RUN useradd --system \
 
 WORKDIR /opt/peercoin
 
-RUN curl -fL \
+    curl -fL \
       "https://github.com/peercoin/peercoin/releases/download/v0.15.1ppc/peercoin-1af7509666a7-aarch64-linux-gnu.tar.gz" \
       -o /tmp/peercoin.tar.gz && \
     tar -xzf /tmp/peercoin.tar.gz \
