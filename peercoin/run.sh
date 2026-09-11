@@ -8,22 +8,6 @@ MINTING_SCRIPT="/opt/peercoin/enable-minting.sh"
 mkdir -p "$DATA_DIR"
 mkdir -p "/share/peercoin/logs"
 
-echo "Recherche des fichiers de portefeuille dans $DATA_DIR :"
-
-find "$DATA_DIR" \
-    -maxdepth 5 \
-    -type f \
-    \( -name "wallet.dat" -o -name "*.dat" \) \
-    -print 2>/dev/null || true
-
-echo "Répertoires de portefeuille :"
-
-find "$DATA_DIR" \
-    -maxdepth 5 \
-    -type d \
-    -print 2>/dev/null || true
-
-
 RPC_USER="${RPC_USER:-ppc_rpc}"
 RPC_PASS_FILE="${RPC_PASS_FILE:-/config/peercoin/secrets/rpc_pass}"
 
@@ -42,12 +26,8 @@ fi
 export RPC_USER
 export RPC_PASS
 
-export WALLET_NAME="android-legacy"
-export WALLET_PASS_FILE="/share/peercoin/secrets/ppc_wallet_pass"
-
-
-#export WALLET_NAME="${WALLET_NAME:-android-legacy}"
-#export WALLET_PASS_FILE="${WALLET_PASS_FILE:-/config/peercoin/secrets/ppc_wallet_pass}"
+export WALLET_NAME="${WALLET_NAME:-android-legacy}"
+export WALLET_PASS_FILE="${WALLET_PASS_FILE:-/config/peercoin/secrets/ppc_wallet_pass}"
 
 if [ ! -r "$WALLET_PASS_FILE" ]; then
     echo "ERREUR : fichier du mot de passe introuvable : $WALLET_PASS_FILE"
