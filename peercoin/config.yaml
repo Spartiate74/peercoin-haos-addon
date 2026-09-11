@@ -1,7 +1,7 @@
 name: Peercoin Core
 version: "0.15.5"
 slug: peercoin
-description: Peercoin Core avec portefeuille et minting
+description: Peercoin Core ARM64 pour Home Assistant
 
 arch:
   - aarch64
@@ -25,8 +25,8 @@ ports:
 
 ports_description:
   9901/tcp: Peercoin P2P
-  9902/tcp: Peercoin RPC local
-  
+  9902/tcp: Peercoin RPC
+
 options:
   rpcuser: ppc_rpc
   rpcpassword: ""
