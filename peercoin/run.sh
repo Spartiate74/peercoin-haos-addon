@@ -42,16 +42,26 @@ if [ ! -f "$CONF_FILE" ]; then
     cat > "$CONF_FILE" <<EOF
 server=1
 daemon=0
+
+# Connexions reseau
+listen=1
+dnsseed=1
+port=9901
+
+# Memoire utilis  e pendant la synchronisation
+dbcache=256
+
+#connexion
+rpcuser=ppc_rpc
+rpcpassword=PEErc0inminting
+
+rpcbinq=0.0.0.0
+rpcpallowip=127.0.0.1/16
+
+rpcport=9902
 minting=1
 
-rpcuser=$RPC_USER
-rpcpassword=$RPC_PASS
-rpcport=9902
-rpcbind=0.0.0.0
-rpcallowip=127.0.0.1/16
-
-listen=1
-port=9901
+wallet=android-legacy
 EOF
 
     chmod 600 "$CONF_FILE"
