@@ -42,7 +42,7 @@ if [ ! -f "$CONF_FILE" ]; then
     cat > "$CONF_FILE" <<EOF
 server=1
 daemon=0
-minting=1
+staking=1
 
 rpcuser=$RPC_USER
 rpcpassword=$RPC_PASS
