@@ -48,7 +48,7 @@ rpcuser=$RPC_USER
 rpcpassword=$RPC_PASS
 rpcport=9902
 rpcbind=0.0.0.0
-rpcallowip=192.168.184.0/24
+rpcallowip=127.0.0.1/24
 
 listen=1
 port=9901
