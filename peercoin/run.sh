@@ -32,7 +32,7 @@ if [ ! -f "${CONF_FILE}" ]; then
         echo "rpcbind=0.0.0.0"
         echo "rpcallowip=172.16.0.0/12"
         echo "rpcallowip=127.0.0.1/24"
-        echo #"wallet=android-legacy"
+        echo "wallet=android-legacy"
         echo "minting=$([ "${MINTING}" = "true" ] && echo 1 || echo 0)"
     } > "${CONF_FILE}"
 
