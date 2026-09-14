@@ -24,25 +24,25 @@ WORKDIR /opt/peercoin
 
 RUN mkdir -p /tmp/peercoin && \
     curl -fL \
-        "https://github.com/peercoin/peercoin/releases/download/v${PPC_VERSION}/${PPC_ARCHIVE}" \
-        -o /tmp/peercoin.tar.gz && \
+      "https://github.com/peercoin/peercoin/releases/download/v${PPC_VERSION}/${PPC_ARCHIVE}" \
+      -o /tmp/peercoin.tar.gz && \
     tar -xzf /tmp/peercoin.tar.gz \
-        -C /tmp/peercoin && \
+      -C /tmp/peercoin && \
     PEERCOIND="$(find /tmp/peercoin -type f -name peercoind -print -quit)" && \
     PEERCOINCLI="$(find /tmp/peercoin -type f -name peercoin-cli -print -quit)" && \
-    test -n "$PEERCOIND" && \
-    test -n "$PEERCOINCLI" && \
-    install -m 0755 "$PEERCOIND" /usr/local/bin/peercoind && \
-    install -m 0755 "$PEERCOINCLI" /usr/local/bin/peercoin-cli && \
+    test -n "${PEERCOIND}" && \
+    test -n "${PEERCOINCLI}" && \
+    install -m 0755 "${PEERCOIND}" /usr/local/bin/peercoind && \
+    install -m 0755 "${PEERCOINCLI}" /usr/local/bin/peercoin-cli && \
     rm -rf /tmp/peercoin /tmp/peercoin.tar.gz
 
 COPY run.sh /opt/peercoin/run.sh
-COPY enable-minting.sh /opt/peercoin/enable-minting.sh
+#COPY enable-minting.sh /opt/peercoin/enable-minting.sh
 
-RUN chmod 700 /opt/peercoin/run.sh && \
-    chmod 700 /opt/peercoin/enable-minting.sh
+RUN chmod 755 /opt/peercoin/run.sh 
+#&& \ chmod 700 /opt/peercoin/enable-minting.sh
 
-VOLUME ["/share"]
+VOLUME ["/data"]
 
 EXPOSE 9901 9902
 
