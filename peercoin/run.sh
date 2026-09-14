@@ -1,5 +1,5 @@
 #!/bin/sh
-set -euo pipefail
+set -eu pipefail
 
 DATA_DIR="/data/peercoin"
 CONF_FILE="${DATA_DIR}/peercoin.conf"
