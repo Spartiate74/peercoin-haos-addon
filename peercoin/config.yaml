@@ -1,7 +1,7 @@
-name: Peercoin Core
-version: "0.15.9"
-slug: peercoin
-description: Peercoin Core ARM64 pour Home Assistant
+name: "Peercoin Core"
+version: "0.15.10"
+slug: "peercoin"
+description: "Peercoin Core ARM64 avec minting continu"
 arch:
   - aarch64
 
@@ -15,18 +15,20 @@ map:
 
 ports:
   9901/tcp: 9901
-  9902/tcp: 9902
 
 ports_description:
-  9901/tcp: Port réseau Peercoin
-  9902/tcp: Port RPC Peercoin
+  9901/tcp: "Port réseau Peercoin"
 
 options:
-  rpcuser: ppc_rpc
+  rpcuser: "ppc_rpc"
   rpcpassword: ""
-  minting: false
+  walletname: "android-legacy"
+  walletpassphrase: ""
+  minting: true
 
 schema:
   rpcuser: str
   rpcpassword: password
+  walletname: str
+  walletpassphrase: password
   minting: bool
