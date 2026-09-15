@@ -15,7 +15,7 @@ if [ ! -f "${CONF_FILE}" ]; then
     RPC_PASS="$(jq -r '.rpcpassword // empty' /data/options.json)"
     MINTING="$(jq -r '.minting // false' /data/options.json)"
 
-    if [ -z "${RPC_PASSWORD}" ]; then
+    if [ -z "${RPC_PASS}" ]; then
         echo "Erreur : le mot de passe RPC n'est pas configuré."
         exit 1
     fi
