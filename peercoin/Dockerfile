@@ -7,10 +7,9 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         ca-certificates \
         curl \
-        bash \
         gosu \
-        nano \
-        jq && \
+        jq \
+        bash && \
     rm -rf /var/lib/apt/lists/*
 
 RUN useradd \
@@ -19,8 +18,6 @@ RUN useradd \
         --create-home \
         --shell /usr/sbin/nologin \
         peercoin
-
-WORKDIR /opt/peercoin
 
 RUN mkdir -p /tmp/peercoin && \
     curl -fL \
@@ -37,13 +34,13 @@ RUN mkdir -p /tmp/peercoin && \
     rm -rf /tmp/peercoin /tmp/peercoin.tar.gz
 
 COPY run.sh /opt/peercoin/run.sh
-#COPY enable-minting.sh /opt/peercoin/enable-minting.sh
 
-RUN chmod 755 /opt/peercoin/run.sh 
-#&& \ chmod 700 /opt/peercoin/enable-minting.sh
+RUN chmod 755 /opt/peercoin/run.sh && \
+    mkdir -p /data/peercoin && \
+    chown -R peercoin:peercoin /data
 
 VOLUME ["/data"]
 
-EXPOSE 9901 9902
+EXPOSE 9901
 
 ENTRYPOINT ["/opt/peercoin/run.sh"]
