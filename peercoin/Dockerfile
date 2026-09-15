@@ -9,6 +9,7 @@ RUN apt-get update && \
         curl \
         gosu \
         jq \
+        nano \
         bash && \
     rm -rf /var/lib/apt/lists/*
 
