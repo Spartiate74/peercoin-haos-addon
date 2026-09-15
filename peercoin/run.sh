@@ -12,7 +12,7 @@ chown -R peercoin:peercoin /data
 if [ ! -f "${CONF_FILE}" ]; then
 
     RPC_USER="$(jq -r '.rpcuser // "ppc_rpc"' /data/options.json)"
-    RPC_PASSWORD="$(jq -r '.rpcpassword // empty' /data/options.json)"
+    RPC_PASS="$(jq -r '.rpcpassword // empty' /data/options.json)"
     MINTING="$(jq -r '.minting // false' /data/options.json)"
 
     if [ -z "${RPC_PASSWORD}" ]; then
@@ -26,7 +26,7 @@ if [ ! -f "${CONF_FILE}" ]; then
         echo "daemon=0"
         echo "listen=1"
         echo "rpcuser=${RPC_USER}"
-        echo "rpcpassword=${RPC_PASSWORD}"
+        echo "rpcpassword=${RPC_PASS}"
         echo "rpcport=9902"
         echo "port=9901"
         echo "rpcbind=0.0.0.0"
@@ -39,6 +39,10 @@ if [ ! -f "${CONF_FILE}" ]; then
     chown peercoin:peercoin "${CONF_FILE}"
     chmod 600 "${CONF_FILE}"
 fi
+
+export RPC_USER="ppc_rpc"
+export RPC_PASS="MOT_DE_PASSE_RPC"
+export RPC_URL="http://127.0.0.1:9902"
 
 exec gosu peercoin peercoind \
     -datadir="${DATA_DIR}" \
