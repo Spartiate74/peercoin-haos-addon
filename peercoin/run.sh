@@ -100,17 +100,17 @@ if ! gosu peercoin peercoin-cli \
     fi
 fi
 
-if [ "${MINTING}" = "true" ]; then
-    echo "Déverrouillage du wallet pour le minting..."
+#if [ "${MINTING}" = "true" ]; then
+    #echo "Déverrouillage du wallet pour le minting..."
 
-    if ! gosu peercoin ${RPC_CLI} \
+    #if ! gosu peercoin ${RPC_CLI} \
         walletpassphrase "${WALLET_PASSPHRASE}" 2147483647 true; then
         echo "Erreur : impossible de déverrouiller le wallet pour le minting."
         echo "Vérifiez la passphrase et assurez-vous que le wallet est chiffré."
         exit 1
-    fi
+    #fi
 
-    echo "Minting activé."
-fi
+    #echo "Minting activé."
+#fi
 
 wait "${PEERCOIND_PID}"
