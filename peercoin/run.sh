@@ -13,13 +13,13 @@ WALLET_PASSPHRASE="$(jq -r '.walletpassphrase // empty' "${OPTIONS_FILE}")"
 MINTING="$(jq -r '.minting // true' "${OPTIONS_FILE}")"
 
 #if [ -z "${RPC_PASS}" ]; then
-    echo "Erreur : rpcpassword n'est pas configuré."
-    exit 1
+    #echo "Erreur : rpcpassword n'est pas configuré."
+    #exit 1
 #fi
 
 #if [ "${MINTING}" = "true" ] && [ -z "${WALLET_PASSPHRASE}" ]; then
-    echo "Erreur : walletpassphrase n'est pas configuré."
-    exit 1
+    #echo "Erreur : walletpassphrase n'est pas configuré."
+    #exit 1
 #fi
 
 mkdir -p "${DATA_DIR}"
