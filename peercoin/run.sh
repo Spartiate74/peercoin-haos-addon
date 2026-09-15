@@ -40,11 +40,10 @@ if [ ! -f "${CONF_FILE}" ]; then
     chmod 600 "${CONF_FILE}"
 fi
 
-export RPC_USER="ppc_rpc"
-export RPC_PASS="MOT_DE_PASSE_RPC"
-export RPC_URL="http://127.0.0.1:9902"
-
 exec gosu peercoin peercoind \
     -datadir="${DATA_DIR}" \
     -conf="${CONF_FILE}"
     
+export RPC_USER="ppc_rpc" \
+export RPC_PASS="MOT_DE_PASSE_RPC" \
+export RPC_URL="http://127.0.0.1:9902" \
