@@ -30,8 +30,7 @@ if [ ! -f "${CONF_FILE}" ]; then
         echo "rpcport=9902"
         echo "port=9901"
         echo "rpcbind=0.0.0.0"
-        echo "rpcallowip=172.16.0.0/12"
-        echo "rpcallowip=127.0.0.1/24"
+        echo "rpcallowip=127.0.0.1"
         echo "wallet=android-legacy"
         echo "minting=$([ "${MINTING}" = "true" ] && echo 1 || echo 0)"
     } > "${CONF_FILE}"
@@ -40,10 +39,12 @@ if [ ! -f "${CONF_FILE}" ]; then
     chmod 600 "${CONF_FILE}"
 fi
 
+RPC_USER="${RPC_USER:-ppc_rpc}"
+RPC_PASS="${RPC_PASS:?RPC_PASS n'est pas défini}"
+RPC_URL="${RPC_URL:-http://127.0.0.1:9902}"
+
+export RPC_USER RPC_PASS RPC_URL
+
 exec gosu peercoin peercoind \
     -datadir="${DATA_DIR}" \
     -conf="${CONF_FILE}"
-    
-export RPC_USER="ppc_rpc" \
-export RPC_PASS="MOT_DE_PASSE_RPC" \
-export RPC_URL="http://127.0.0.1:9902" \
