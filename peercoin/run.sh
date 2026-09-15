@@ -12,15 +12,15 @@ WALLET_NAME="$(jq -r '.walletname // "android-legacy"' "${OPTIONS_FILE}")"
 WALLET_PASSPHRASE="$(jq -r '.walletpassphrase // empty' "${OPTIONS_FILE}")"
 MINTING="$(jq -r '.minting // true' "${OPTIONS_FILE}")"
 
-if [ -z "${RPC_PASS}" ]; then
+#if [ -z "${RPC_PASS}" ]; then
     echo "Erreur : rpcpassword n'est pas configuré."
     exit 1
-fi
+#fi
 
-if [ "${MINTING}" = "true" ] && [ -z "${WALLET_PASSPHRASE}" ]; then
+#if [ "${MINTING}" = "true" ] && [ -z "${WALLET_PASSPHRASE}" ]; then
     echo "Erreur : walletpassphrase n'est pas configuré."
     exit 1
-fi
+#fi
 
 mkdir -p "${DATA_DIR}"
 chown -R peercoin:peercoin /data
@@ -104,10 +104,10 @@ fi
     #echo "Déverrouillage du wallet pour le minting..."
 
     #if ! gosu peercoin ${RPC_CLI} \
-        walletpassphrase "${WALLET_PASSPHRASE}" 2147483647 true; then
-        echo "Erreur : impossible de déverrouiller le wallet pour le minting."
-        echo "Vérifiez la passphrase et assurez-vous que le wallet est chiffré."
-        exit 1
+        #walletpassphrase "${WALLET_PASSPHRASE}" 2147483647 true; then
+        #echo "Erreur : impossible de déverrouiller le wallet pour le minting."
+        #echo "Vérifiez la passphrase et assurez-vous que le wallet est chiffré."
+        #exit 1
     #fi
 
     #echo "Minting activé."
