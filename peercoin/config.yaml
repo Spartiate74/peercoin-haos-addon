@@ -22,13 +22,12 @@ ports_description:
 options:
   rpcuser: "ppc_rpc"
   rpcpassword: ""
-  walletname: "android-legacy"
-  walletpassphrase: ""
+
   minting: false
 
 schema:
   rpcuser: str
   rpcpassword: password
-  walletname: str
-  walletpassphrase: password
+  #walletname: str
+  #walletpassphrase: password
   minting: bool
