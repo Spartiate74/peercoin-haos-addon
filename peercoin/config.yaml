@@ -20,7 +20,7 @@ options:
   rpcpassword: "CHANGEZ_CE_MOT_DE_PASSE_RPC"
   walletname: "android-legacy"
   walletpassphrase: ""
-  minting: true
+  minting: false
 
 schema:
   rpcuser: str
