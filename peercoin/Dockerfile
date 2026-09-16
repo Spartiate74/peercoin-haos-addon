@@ -21,7 +21,6 @@ RUN useradd \
         peercoin
 
 RUN mkdir -p /tmp/peercoin && \
-    echo "Téléchargement de Peercoin Core..." && \
     curl -fL \
       "https://github.com/peercoin/peercoin/releases/download/v${PPC_VERSION}/${PPC_ARCHIVE}" \
       -o /tmp/peercoin.tar.gz && \
