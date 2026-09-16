@@ -44,4 +44,4 @@ VOLUME ["/data"]
 
 EXPOSE 9901
 
-ENTRYPOINT ["/opt/peercoin/run.sh"]
+ENTRYPOINT ["/bin/bash", "/opt/peercoin/run.sh"]
