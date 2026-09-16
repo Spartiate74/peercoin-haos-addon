@@ -1,122 +1,48 @@
-#!/bin/bash
+FROM debian:bookworm-slim
 
-set -Eeuo pipefail
+ARG PPC_VERSION=0.15.1ppc
+ARG PPC_ARCHIVE=peercoin-1af7509666a7-aarch64-linux-gnu.tar.gz
 
-DATA_DIR="/data/peercoin"
-CONF_FILE="${DATA_DIR}/peercoin.conf"
-OPTIONS_FILE="/data/options.json"
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        gosu \
+        jq \
+        nano \
+        bash && \
+    rm -rf /var/lib/apt/lists/*
 
-RPC_USER="$(jq -r '.rpcuser // "ppc_rpc"' "${OPTIONS_FILE}")"
-RPC_PASS="$(jq -r '.rpcpassword // empty' "${OPTIONS_FILE}")"
-WALLET_NAME="$(jq -r '.walletname // "android-legacy"' "${OPTIONS_FILE}")"
-WALLET_PASSPHRASE="$(jq -r '.walletpassphrase // empty' "${OPTIONS_FILE}")"
-MINTING="$(jq -r '.minting // true' "${OPTIONS_FILE}")"
+RUN useradd \
+        --system \
+        --home-dir /data \
+        --create-home \
+        --shell /usr/sbin/nologin \
+        peercoin
 
-if [[ -z "${RPC_PASS}" ]]; then
-    echo "Erreur : rpcpassword doit être configuré."
-    exit 1
-fi
+RUN mkdir -p /tmp/peercoin && \
+    echo "Téléchargement de Peercoin Core..." && \
+    curl -fL \
+      "https://github.com/peercoin/peercoin/releases/download/v${PPC_VERSION}/${PPC_ARCHIVE}" \
+      -o /tmp/peercoin.tar.gz && \
+    tar -xzf /tmp/peercoin.tar.gz \
+      -C /tmp/peercoin && \
+    PEERCOIND="$(find /tmp/peercoin -type f -name peercoind -print -quit)" && \
+    PEERCOINCLI="$(find /tmp/peercoin -type f -name peercoin-cli -print -quit)" && \
+    test -n "${PEERCOIND}" && \
+    test -n "${PEERCOINCLI}" && \
+    install -m 0755 "${PEERCOIND}" /usr/local/bin/peercoind && \
+    install -m 0755 "${PEERCOINCLI}" /usr/local/bin/peercoin-cli && \
+    rm -rf /tmp/peercoin /tmp/peercoin.tar.gz
 
-if [[ "${MINTING}" == "true" && -z "${WALLET_PASSPHRASE}" ]]; then
-    echo "Erreur : walletpassphrase doit être configuré pour le minting."
-    exit 1
-fi
+COPY run.sh /opt/peercoin/run.sh
 
-mkdir -p "${DATA_DIR}"
-chown -R peercoin:peercoin /data
+RUN chmod 755 /opt/peercoin/run.sh && \
+    mkdir -p /data/peercoin && \
+    chown -R peercoin:peercoin /data
 
-if [[ ! -f "${CONF_FILE}" ]]; then
-    umask 077
+VOLUME ["/data"]
 
-    cat > "${CONF_FILE}" <<EOF
-server=1
-daemon=0
-listen=1
-port=9901
-rpcport=9902
-rpcbind=127.0.0.1
-rpcallowip=127.0.0.1
-rpcuser=${RPC_USER}
-rpcpassword=${RPC_PASS}
-minting=$([[ "${MINTING}" == "true" ]] && echo 1 || echo 0)
-EOF
+EXPOSE 9901
 
-    chown peercoin:peercoin "${CONF_FILE}"
-    chmod 600 "${CONF_FILE}"
-fi
-
-echo "Démarrage de Peercoin Core..."
-
-gosu peercoin peercoind \
-    -datadir="${DATA_DIR}" \
-    -conf="${CONF_FILE}" &
-
-PEERCOIND_PID=$!
-
-cleanup() {
-    echo "Arrêt de Peercoin Core..."
-    kill "${PEERCOIND_PID}" 2>/dev/null || true
-    wait "${PEERCOIND_PID}" 2>/dev/null || true
-}
-
-trap cleanup INT TERM EXIT
-
-cli() {
-    gosu peercoin peercoin-cli \
-        -datadir="${DATA_DIR}" \
-        -conf="${CONF_FILE}" \
-        "$@"
-}
-
-echo "Attente du démarrage du RPC..."
-
-until cli getblockchaininfo >/dev/null 2>&1; do
-    if ! kill -0 "${PEERCOIND_PID}" 2>/dev/null; then
-        echo "peercoind s'est arrêté prématurément."
-        exit 1
-    fi
-
-    sleep 5
-done
-
-echo "RPC Peercoin disponible."
-
-echo "Vérification du wallet ${WALLET_NAME}..."
-
-if ! cli listwallets | jq -e --arg wallet "${WALLET_NAME}" \
-    'any(.[]; . == $wallet)' >/dev/null; then
-
-    echo "Wallet non chargé."
-
-    if [[ -f "${DATA_DIR}/wallets/${WALLET_NAME}/wallet.dat" || \
-          -f "${DATA_DIR}/${WALLET_NAME}/wallet.dat" ]]; then
-
-        echo "Chargement du wallet existant..."
-        cli loadwallet "${WALLET_NAME}" || true
-    else
-        echo "Création du wallet legacy chiffré..."
-
-        cli createwallet \
-            "${WALLET_NAME}" \
-            false \
-            false \
-            "${WALLET_PASSPHRASE}" \
-            false
-    fi
-fi
-
-if [[ "${MINTING}" == "true" ]]; then
-    echo "Déverrouillage du wallet pour le minting..."
-
-    cli -rpcwallet="${WALLET_NAME}" \
-        walletpassphrase \
-        "${WALLET_PASSPHRASE}" \
-        2147483647 \
-        true
-
-    echo "Minting activé."
-fi
-
-echo "Peercoin Core fonctionne."
-
-wait "${PEERCOIND_PID}"
+ENTRYPOINT ["/opt/peercoin/run.sh"]
