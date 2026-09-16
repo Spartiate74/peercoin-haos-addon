@@ -38,6 +38,7 @@ rpcbind=127.0.0.1
 rpcallowip=127.0.0.1
 rpcuser=${RPC_USER}
 rpcpassword=${RPC_PASS}
+minting=0
 EOF
 
     chown peercoin:peercoin "${CONF_FILE}"
@@ -91,6 +92,7 @@ if ! ${CLI} listwallets | jq -e --arg wallet "${WALLET_NAME}" \
             false \
             false \
             "${WALLET_PASSPHRASE}" \
+            false
             false
     fi
 fi
