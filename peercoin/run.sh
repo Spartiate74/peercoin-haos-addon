@@ -55,7 +55,6 @@ cleanup() {
 }
 
 trap cleanup INT TERM EXIT
-done
 
 echo "RPC Peercoin disponible."
 
