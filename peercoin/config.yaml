@@ -17,14 +17,10 @@ ports_description:
 
 options:
   rpcuser: "ppc_rpc"
-  rpcpassword: "CHANGEZ_CE_MOT_DE_PASSE_RPC"
-  walletname: "android-legacy"
-  walletpassphrase: ""
+  rpcpassword: ""
   minting: false
 
 schema:
   rpcuser: str
   rpcpassword: password
-  walletname: str
-  walletpassphrase: password
   minting: bool
