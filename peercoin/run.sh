@@ -10,15 +10,10 @@ RPC_USER="$(jq -r '.rpcuser // "ppc_rpc"' "${OPTIONS_FILE}")"
 RPC_PASS="$(jq -r '.rpcpassword // empty' "${OPTIONS_FILE}")"
 WALLET_NAME="$(jq -r '.walletname // "android-legacy"' "${OPTIONS_FILE}")"
 WALLET_PASSPHRASE="$(jq -r '.walletpassphrase // empty' "${OPTIONS_FILE}")"
-MINTING="$(jq -r '.minting // true' "${OPTIONS_FILE}")"
+MINTING="$(jq -r '.minting // false' "${OPTIONS_FILE}")"
 
 if [ -z "${RPC_PASS}" ]; then
     echo "Erreur : rpcpassword n'est pas configuré."
-    exit 1
-fi
-
-if [ "${MINTING}" = "true" ] && [ -z "${WALLET_PASSPHRASE}" ]; then
-    echo "Erreur : walletpassphrase n'est pas configuré."
     exit 1
 fi
 
