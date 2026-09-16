@@ -60,61 +60,8 @@ cleanup() {
 }
 
 trap cleanup INT TERM EXIT
-
-CLI="gosu peercoin peercoin-cli -datadir=${DATA_DIR} -conf=${CONF_FILE}"
-WCLI="${CLI} -rpcwallet=${WALLET_NAME}"
-
-echo "Attente du démarrage du RPC..."
-
-until ${CLI} getblockchaininfo >/dev/null 2>&1; do
-    if ! kill -0 "${PEERCOIND_PID}" 2>/dev/null; then
-        echo "peercoind s'est arrêté prématurément."
-        exit 1
-    fi
-
-    sleep 5
 done
 
 echo "RPC Peercoin disponible."
-
-echo "Vérification du wallet ${WALLET_NAME}..."
-
-if ! ${CLI} listwallets | jq -e --arg wallet "${WALLET_NAME}" \
-    'index($wallet) != null' >/dev/null 2>&1; then
-
-    echo "Wallet non chargé, tentative de chargement..."
-
-    if ! ${CLI} loadwallet "${WALLET_NAME}" >/dev/null 2>&1; then
-        echo "Wallet inexistant : création d'un wallet legacy chiffré..."
-
-        ${CLI} createwallet \
-            "${WALLET_NAME}" \
-            false \
-            false \
-            "${WALLET_PASSPHRASE}" \
-            false
-            false
-    fi
-fi
-
-echo "Wallet ${WALLET_NAME} chargé."
-
-if [ "${MINTING}" = "true" ]; then
-    echo "Déverrouillage du wallet pour le minting..."
-
-    if ! ${WCLI} walletpassphrase \
-        "${WALLET_PASSPHRASE}" \
-        2147483647 \
-        true; then
-
-        echo "Erreur : impossible de déverrouiller le wallet pour le minting."
-        echo "Vérifiez la walletpassphrase."
-        exit 1
-    fi
-
-    echo "Minting activé."
-fi
-
-echo "Peercoin Core fonctionne."
 
 wait "${PEERCOIND_PID}"
