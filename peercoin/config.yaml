@@ -1,21 +1,26 @@
 name: "Peercoin Core"
 version: "0.15.11"
 slug: "peercoin"
-description: "Peercoin Core ARM64 avec minting"
-url: "https://github.com/spartiate74/peercoin-haos-addon"
+description: "Peercoin Core ARM64 avec minting continu"
+arch:
+  - aarch64
+
 startup: services
 boot: auto
 init: false
 
-arch:
-  - aarch64
+ports:
+  9901/tcp: 9901
+
+ports_description:
+  9901/tcp: "Peercoin réseau principal"
 
 options:
   rpcuser: "ppc_rpc"
-  rpcpassword: ""
-  walletname: "peercoin-mint"
+  rpcpassword: "CHANGEZ_CE_MOT_DE_PASSE_RPC"
+  walletname: "android-legacy"
   walletpassphrase: ""
-  minting: false
+  minting: true
 
 schema:
   rpcuser: str
@@ -23,11 +28,3 @@ schema:
   walletname: str
   walletpassphrase: password
   minting: bool
-
-ports:
-  9901/tcp: 9901
-
-ports_description:
-  9901/tcp: "Port réseau Peercoin"
-
-image: "ghcr.io/spartiate74/{arch}-peercoin"
