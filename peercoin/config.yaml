@@ -5,6 +5,10 @@ description: "Peercoin Core ARM64 avec minting continu"
 arch:
   - aarch64
 
+map:
+  - type: share
+    read_only: false
+
 startup: services
 boot: auto
 init: false
