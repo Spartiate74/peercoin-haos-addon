@@ -33,13 +33,49 @@ rpcbind=127.0.0.1
 rpcallowip=127.0.0.1
 rpcuser=${RPC_USER}
 rpcpassword=${RPC_PASS}
-minting=1
+minting=0
 wallet=android-legacy
 maxconnections=50
 EOF
 
     chown peercoin:peercoin "${CONF_FILE}"
     chmod 600 "${CONF_FILE}"
+fi
+
+echo "Vérification du wallet ${WALLET_NAME}..."
+
+if ! gosu peercoin peercoin-cli \
+    -datadir="${DATA_DIR}" \
+    -conf="${CONF_FILE}" \
+    listwallets | jq -e --arg wallet "${WALLET_NAME}" \
+    'index($wallet) != null' >/dev/null; then
+
+    echo "Wallet non chargé, tentative de chargement..."
+
+    if ! gosu peercoin peercoin-cli \
+        -datadir="${DATA_DIR}" \
+        -conf="${CONF_FILE}" \
+        loadwallet "${WALLET_NAME}"; then
+
+        echo "Le wallet n'existe pas. Création du wallet legacy..."
+
+        gosu peercoin peercoin-cli \
+            -datadir="${DATA_DIR}" \
+            -conf="${CONF_FILE}" \
+            createwallet "${WALLET_NAME}" false false "" false
+    fi
+fi
+
+if [ "${MINTING}" = "true" ]; then
+    echo "Déverrouillage du wallet pour le minting..."
+
+    gosu peercoin peercoin-cli \
+        -datadir="${DATA_DIR}" \
+        -conf="${CONF_FILE}" \
+        -rpcwallet="${WALLET_NAME}" \
+        walletpassphrase "${WALLET_PASSPHRASE}" 2147483647 true
+
+    echo "Minting activé."
 fi
 
 echo "Démarrage de Peercoin Core..."
