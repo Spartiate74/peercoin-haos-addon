@@ -33,7 +33,9 @@ rpcbind=127.0.0.1
 rpcallowip=127.0.0.1
 rpcuser=${RPC_USER}
 rpcpassword=${RPC_PASS}
-minting=0
+minting=1
+wallet=android-legacy
+maxconnections=50
 EOF
 
     chown peercoin:peercoin "${CONF_FILE}"
@@ -43,8 +45,9 @@ fi
 echo "Démarrage de Peercoin Core..."
 
 gosu peercoin peercoind \
-    -datadir="${DATA_DIR}" \
-    -conf="${CONF_FILE}" &
+    -DATADIR="${DATA_DIR}" \
+    -CONF="${CONF_FILE}" \
+    -WALLET="$(WALLET_NAME)" &
 
 PEERCOIND_PID="$!"
 
