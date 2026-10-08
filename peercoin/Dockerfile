@@ -10,6 +10,10 @@ RUN apt-get update && \
         gosu \
         jq \
         nano \
+        rsync \
+        git \
+        unzip \
+        lm-sensors \
         bash && \
     rm -rf /var/lib/apt/lists/*
 
