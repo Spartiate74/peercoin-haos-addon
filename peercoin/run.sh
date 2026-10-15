@@ -31,11 +31,16 @@ rpcallowip=127.0.0.1
 rpcallowip=172.30.32.0/23
 rpcuser=${RPC_USER}
 rpcpassword=${RPC_PASS}
-minting=0
 wallet=${WALLET}
 maxconnections=50
 dbcache=450
 EOF
+
+if [ "${MINTING}" = "true" ]; then
+    echo "Minting activé dans la config."
+else
+    echo "Minting désactivé dans la config."
+fi
 
 chown peercoin:peercoin "${CONF}"
 chmod 600 "${CONF}"
@@ -85,18 +90,14 @@ if ! gosu peercoin peercoin-cli \
     fi
 fi
 
-if [ "${MINTING}" = "true" ]; then
-    if [ -n "${WALLET_PASSPHRASE}" ]; then
-        echo "Déverrouillage du wallet pour le minting..."
-        gosu peercoin peercoin-cli \
-            -datadir="${DATADIR}" \
-            -conf="${CONF}" \
-            -rpcwallet="${WALLET}" \
-            walletpassphrase "${WALLET_PASSPHRASE}" 2147483647 true
-        echo "Minting activé."
-    else
-        echo "Minting demandé mais walletpassphrase est vide."
-    fi
+if [ "${MINTING}" = "true" ] && [ -n "${WALLET_PASSPHRASE}" ]; then
+    echo "Déverrouillage du wallet pour le minting..."
+    gosu peercoin peercoin-cli \
+        -datadir="${DATADIR}" \
+        -conf="${CONF}" \
+        -rpcwallet="${WALLET}" \
+        walletpassphrase "${WALLET_PASSPHRASE}" 2147483647 true
+    echo "Minting activé."
 fi
 
 wait "${PEERCOIND_PID}"
