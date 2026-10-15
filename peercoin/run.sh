@@ -29,13 +29,16 @@ daemon=0
 listen=1
 port=9901
 rpcport=9902
-rpcbind=127.0.0.1
+rpcbind=0.0.0.0
 rpcallowip=127.0.0.1
+rpcallowip=172.30.32.0/23
 rpcuser=${RPC_USER}
 rpcpassword=${RPC_PASS}
 minting=0
 wallet=android-legacy
 maxconnections=50
+dbcache=450
+DATADIR=/data/peercoin
 EOF
 
     chown peercoin:peercoin "${CONF}"
