@@ -1,14 +1,12 @@
-name: "Peercoin Core"
+name: Peercoin Core
+slug: peercoin_core
 version: "0.15.13"
 slug: "peercoin"
 description: "Peercoin Core ARM64 avec minting continu"
 arch:
   - aarch64
-
-map:
-  - type: share
-    read_only: false
-
+  - amd64
+  - armv7
 startup: services
 boot: auto
 init: false
@@ -17,15 +15,16 @@ ports:
   9901/tcp: 9901
   9902/tcp: 9902
 
-ports_description:
-  9901/tcp: "Peercoin réseau principal"
-
 options:
-  rpcuser: "ppc_rpc"
+  rpcuser: ppc_rpc
   rpcpassword: ""
+  walletname: android-legacy
+  walletpassphrase: ""
   minting: false
 
 schema:
   rpcuser: str
   rpcpassword: password
+  walletname: str
+  walletpassphrase: password
   minting: bool
