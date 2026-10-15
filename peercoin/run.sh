@@ -1,5 +1,4 @@
 #!/bin/sh
-
 set -eu
 
 DATADIR="/data/peercoin"
@@ -20,10 +19,8 @@ fi
 mkdir -p "${DATADIR}"
 chown -R peercoin:peercoin /data
 
-if [ ! -f "${CONF}" ]; then
-    umask 077
-
-    cat > "${CONF}" <<EOF
+umask 077
+cat > "${CONF}" <<EOF
 server=1
 daemon=0
 listen=1
@@ -35,23 +32,43 @@ rpcallowip=172.30.32.0/23
 rpcuser=${RPC_USER}
 rpcpassword=${RPC_PASS}
 minting=0
-wallet=android-legacy
+wallet=${WALLET}
 maxconnections=50
 dbcache=450
-DATADIR=/data/peercoin
 EOF
 
-    chown peercoin:peercoin "${CONF}"
-    chmod 600 "${CONF}"
-fi
+chown peercoin:peercoin "${CONF}"
+chmod 600 "${CONF}"
+
+echo "Démarrage de Peercoin Core..."
+
+gosu peercoin peercoind \
+    -datadir="${DATADIR}" \
+    -conf="${CONF}" &
+PEERCOIND_PID="$!"
+
+cleanup() {
+    echo "Arrêt de Peercoin Core..."
+    kill "${PEERCOIND_PID}" 2>/dev/null || true
+    wait "${PEERCOIND_PID}" 2>/dev/null || true
+}
+trap cleanup INT TERM EXIT
+
+echo "Attente du démarrage RPC..."
+
+until gosu peercoin peercoin-cli \
+    -datadir="${DATADIR}" \
+    -conf="${CONF}" \
+    getblockchaininfo >/dev/null 2>&1; do
+    sleep 2
+done
 
 echo "Vérification du wallet ${WALLET}..."
 
 if ! gosu peercoin peercoin-cli \
     -datadir="${DATADIR}" \
     -conf="${CONF}" \
-    listwallets | jq -e --arg wallet "${WALLETNAME}" \
-    'index($wallet) != null' >/dev/null; then
+    listwallets | jq -e --arg wallet "${WALLET}" 'index($wallet) != null' >/dev/null; then
 
     echo "Wallet non chargé, tentative de chargement..."
 
@@ -61,7 +78,6 @@ if ! gosu peercoin peercoin-cli \
         loadwallet "${WALLET}"; then
 
         echo "Le wallet n'existe pas. Création du wallet legacy..."
-
         gosu peercoin peercoin-cli \
             -datadir="${DATADIR}" \
             -conf="${CONF}" \
@@ -70,34 +86,17 @@ if ! gosu peercoin peercoin-cli \
 fi
 
 if [ "${MINTING}" = "true" ]; then
-    echo "Déverrouillage du wallet pour le minting..."
-
-    gosu peercoin peercoin-cli \
-        -datadir="${DATADIR}" \
-        -conf="${CONF}" \
-        -rpcwallet="${WALLET}" \
-        walletpassphrase "${WALLET_PASSPHRASE}" 2147483647 true
-
-    echo "Minting activé."
+    if [ -n "${WALLET_PASSPHRASE}" ]; then
+        echo "Déverrouillage du wallet pour le minting..."
+        gosu peercoin peercoin-cli \
+            -datadir="${DATADIR}" \
+            -conf="${CONF}" \
+            -rpcwallet="${WALLET}" \
+            walletpassphrase "${WALLET_PASSPHRASE}" 2147483647 true
+        echo "Minting activé."
+    else
+        echo "Minting demandé mais walletpassphrase est vide."
+    fi
 fi
-
-echo "Démarrage de Peercoin Core..."
-
-gosu peercoin peercoind \
-    -DATADIR="${DATADIR}" \
-    -CONF="${CONF}" \
-    -WALLET="$(WALLET)" &
-
-PEERCOIND_PID="$!"
-
-cleanup() {
-    echo "Arrêt de Peercoin Core..."
-    kill "${PEERCOIND_PID}" 2>/dev/null || true
-    wait "${PEERCOIND_PID}" 2>/dev/null || true
-}
-
-trap cleanup INT TERM EXIT
-
-echo "RPC Peercoin disponible."
 
 wait "${PEERCOIND_PID}"
