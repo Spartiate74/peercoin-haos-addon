@@ -46,6 +46,6 @@ RUN chmod 755 /opt/peercoin/run.sh && \
 
 VOLUME ["/data"]
 
-EXPOSE 9901
+EXPOSE 9901 9902
 
 ENTRYPOINT ["/opt/peercoin/run.sh"]
