@@ -14,6 +14,8 @@ RUN apt-get update && \
         git \
         unzip \
         lm-sensors \
+        iproute2 \
+        net-tools \
         bash && \
     rm -rf /var/lib/apt/lists/*
 
