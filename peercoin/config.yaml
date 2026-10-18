@@ -1,6 +1,6 @@
 name: Peercoin Core
 slug: peercoin_core
-version: "0.15.13"
+version: "0.15.15"
 slug: "peercoin"
 description: "Peercoin Core ARM64 avec minting continu"
 arch:
