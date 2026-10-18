@@ -1,7 +1,7 @@
 FROM debian:bookworm-slim
 
-ARG PPC_VERSION=0.15.1ppc
-ARG PPC_ARCHIVE=peercoin-1af7509666a7-aarch64-linux-gnu.tar.gz
+ARG PPC_VERSION=0.15.2ppc
+ARG PPC_ARCHIVE=peercoin-f56b8a1e2b14-aarch64-linux-gnu.tar.gz
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
