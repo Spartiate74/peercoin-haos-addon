@@ -86,7 +86,7 @@ if ! gosu peercoin peercoin-cli \
         gosu peercoin peercoin-cli \
             -datadir="${DATADIR}" \
             -conf="${CONF}" \
-            createwallet "${WALLET}" false false "" false
+            createwallet "${WALLET}" false false "" false false
     fi
 fi
 
