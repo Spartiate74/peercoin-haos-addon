@@ -10,6 +10,7 @@ RUN apt-get update && \
         gosu \
         jq \
         nano \
+        sudo \
         rsync \
         git \
         unzip \
