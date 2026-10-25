@@ -9,9 +9,11 @@ arch:
 startup: services
 boot: auto
 init: false
+
 map:
   - type: share
-  
+    read_only: false 
+
 ports:
   9901/tcp: 9901
   9902/tcp: 9902
